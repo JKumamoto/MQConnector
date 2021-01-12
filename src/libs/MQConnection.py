@@ -12,7 +12,7 @@ class MQConnection():
 
         self.log = Logger()
 
-    def Connect(self, queue_manager, channel, conn, user, password=None):
+    def Connect(self, queue_manager, channel, conn, user=None, password=None):
         self.log.info("Abrindo Conexao com o MQ")
         try:
             self.qmgr = pymqi.connect(queue_manager, channel, conn, user, password)

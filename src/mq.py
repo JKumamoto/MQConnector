@@ -7,11 +7,11 @@ host = 'SCQTD0029CLD'
 port = '5000'
 queue_manager = 'SMD1041CTO'
 channel = 'D1041CTO.P_OC2_DEV'
-user = 'usutivo@itau'
+#user = 'usutivo@itau'
 
 conn = '%s(%s)' % (host, port)
 
-mqconn.Connect(queue_manager, channel, conn, user)
+mqconn.Connect(queue_manager, channel, conn)
 
 queues = list()
 queues.append("RP.QRP.OC2.MONIT.SECA2")
