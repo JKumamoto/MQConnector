@@ -6,7 +6,7 @@ WORKDIR /code
 
 # install MQ
 RUN mkdir -p /opt/mqm/
-COPY ../9.1.5.0-IBM-MQC-Redist-LinuxX64.tar.gz .
+COPY 9.1.5.0-IBM-MQC-Redist-LinuxX64.tar.gz .
 RUN tar -vxf 9.1.5.0-IBM-MQC-Redist-LinuxX64.tar.gz -C /opt/mqm/
 RUN rm 9.1.5.0-IBM-MQC-Redist-LinuxX64.tar.gz
 ENV LD_LIBRARY_PATH /opt/mqm/lib64:$LD_LIBRARY_PATH

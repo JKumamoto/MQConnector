@@ -3,20 +3,18 @@ from libs.MQConnection import MQConnection
 
 mqconn = MQConnection()
 
-host = '172.17.0.2'
-port = '1414'
-queue_manager = 'QM1'
-channel = 'DEV.APP.SVRCONN'
-user = 'app'
-password = 'passw0rd'
+host = 'SCQTD0029CLD'
+port = '5000'
+queue_manager = 'SMD1041CTO'
+channel = 'D1041CTO.P_OC2_DEV'
+user = 'usutivo@itau'
 
 conn = '%s(%s)' % (host, port)
 
-mqconn.Connect(queue_manager, channel, conn, user, password)
+mqconn.Connect(queue_manager, channel, conn, user)
 
 queues = list()
-queues.append("DEV.QUEUE.1")
-queues.append("DEV.QUEUE.2")
+queues.append("RP.QRP.OC2.MONIT.SECA2")
 
 mqconn.OpenQueue(queues)
 
