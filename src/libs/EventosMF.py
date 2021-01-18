@@ -1,11 +1,27 @@
 import pandas as pd
 from datetime import datetime, timezone
+from requests import request
 from libs.SNEventBuilder import SNEventBuilder
 
 class EventosMF():
 
     def __init__(self):
-        self.df = ""
+        self.authorization = ""
+        self.method = "POST"
+        self.headers = {
+                'Content-Type': 'application/json',
+                'cache-control': 'no-cache',
+                'charset': 'utf-8',
+                'Authorization': self.authorization
+                }
+
+    def set_url(self, url_):
+        self.url = url_
+        return self
+
+    def post(self, payload):
+        response = request(self.method, self.url, data=payload, headers=self.headers)
+        return response
 
     def parser(self, msg):
         x = [None] * len(msg)
@@ -58,3 +74,4 @@ class EventosMF():
             list_events.append(sn_records_gen.build)
 
         return list_events
+
