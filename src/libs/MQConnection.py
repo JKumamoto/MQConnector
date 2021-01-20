@@ -44,41 +44,46 @@ class MQConnection():
             self.logger.log("CRITICAL", __name__, f'Comp: {e.comp}, Reason {e.reason}')
             raise
 
-        self.logger.log("INFO", __name__, "Fila aberta com sucesso")
+        self.logger.log("INFO", __name__, "Filas abertas com sucesso")
         return self
 
     def CloseQueue(self):
-        self.logger.log("INFO", __name__, "Abrindo Conexao com o MQ")
+        self.logger.log("INFO", __name__, "Fechando Filas")
         try:
             for q in self.queues:
                 q.close()
         except pymqi.MQMIError as e:
             self.logger.log("CRITICAL", __name__, f'Comp: {e.comp}, Reason {e.reason}')
             raise
-
+        
+        self.logger.log("INFO", __name__, "Filas fechadas com sucesso")
         return self
 
     def MQGET(self):
         self.logger.log("INFO", __name__, "MQGET")
         messages = list()
         for q in self.queues:
-            try:
-                msg = q.get(None, self.md, self.gmo).decode('utf8')
-                self.logger.log("INFO", __name__, f'Mensagem do MQ: {msg}')
-                messages.append(msg)
+            keep_alive = True
+            msg_count = 0
+            while keep_alive:
+                try:
+                    msg = q.get(None, self.md, self.gmo).decode('utf8')
+                    self.logger.log("INFO", __name__, f'Mensagem do MQ: {msg}')
+                    messages.append(msg)
 
-                self.md.MsgId = pymqi.CMQC.MQMI_NONE
-                self.md.CorrelId = pymqi.CMQC.MQCI_NONE
-                self.md.GroupId = pymqi.CMQC.MQGI_NONE
-            except pymqi.MQMIError as e:
-                if e.comp == pymqi.CMQC.MQCC_FAILED and e.reason == pymqi.CMQC.MQRC_NO_MSG_AVAILABLE:
-                    # No messages, that's OK, we can ignore it.
-                    self.logger.log("INFO", __name__, "No Messages")
-                    pass
-                else:
-                    # Some other error condition.
-                    self.logger.log("CRITICAL", __name__, f'Comp: {e.comp}, Reason {e.reason}')
-                    raise
+                    self.md.MsgId = pymqi.CMQC.MQMI_NONE
+                    self.md.CorrelId = pymqi.CMQC.MQCI_NONE
+                    self.md.GroupId = pymqi.CMQC.MQGI_NONE
+                    msg_count = msg_count + 1
+                except pymqi.MQMIError as e:
+                    if e.comp == pymqi.CMQC.MQCC_FAILED and e.reason == pymqi.CMQC.MQRC_NO_MSG_AVAILABLE:
+                        # No messages, that's OK, we can ignore it.
+                        self.logger.log("INFO", __name__, f'Total de Mensagens nessa fila: {msg_count}')
+                        keep_alive = False
+                    else:
+                        # Some other error condition.
+                        self.logger.log("CRITICAL", __name__, f'Comp: {e.comp}, Reason {e.reason}')
+                        raise
 
         return messages
 

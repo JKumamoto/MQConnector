@@ -1,11 +1,15 @@
 import pandas as pd
+import json
 from datetime import datetime, timezone
 from requests import request
 from libs.SNEventBuilder import SNEventBuilder
+from libs.Logger import Logger
 
 class EventosMF():
 
     def __init__(self):
+        self.logger = Logger()
+        
         self.authorization = ""
         self.method = "POST"
         self.headers = {
@@ -19,11 +23,17 @@ class EventosMF():
         self.url = url_
         return self
 
-    def post(self, payload):
-        response = request(self.method, self.url, data=payload, headers=self.headers)
-        return response
+    def post(self, events):
+        try:
+            payload = json.dumps(events)
+            response = request(self.method, self.url, data=payload, headers=self.headers)
+            self.logger.log("INFO", __name__, f'Post Response: {response.status_code} - {response.content}')
+        except TypeError:
+            self.logger.log("ERROR", __name__, f'Falha na transformação para JSON')
+        return self
 
     def parser(self, msg):
+        self.logger.log("INFO", __name__, f'Iniciando Parsing de {len(msg)} Eventos MQ')
         x = [None] * len(msg)
         for i in range(len(msg)):
             x[i] = msg[i].split(";")
@@ -33,9 +43,12 @@ class EventosMF():
 
         df['date_gmt'] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         
+        self.logger.log("INFO", __name__, f'Parsing de {df.shape[0]} Eventos concluido')
+        
         return df
 
     def EventFactory(self, dict_events):
+        self.logger.log("INFO", __name__, f'Inicio da Geração de eventos')
         list_events = list()
 
         for record in range(len(dict_events)):
@@ -73,5 +86,7 @@ class EventosMF():
 
             list_events.append(sn_records_gen.build)
 
+        self.logger.log("INFO", __name__, f'Geração de {len(list_events)} Eventos realizado com sucesso')
+        
         return list_events
 

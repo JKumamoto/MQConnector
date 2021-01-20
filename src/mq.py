@@ -1,11 +1,10 @@
 import time
-import json
 from libs.MQConnection import MQConnection
 from libs.EventosMF import EventosMF
 
 mqconn = MQConnection()
 ev = EventosMF()
-ev.set_url("http://0.0.0.0:5000/echo")
+ev.set_url("https://dev94674.service-now.com/api/global/em/jsonv2")
 
 host = '172.17.0.2'
 port = '1414'
@@ -32,13 +31,12 @@ while keep_alive:
             df = ev.parser(msg)
             dict_events = df.to_dict(orient='records')
             events = ev.EventFactory(dict_events)
-            #ev.post(json.dumps(events))
+            ev.post(events)
 
-        time.sleep(10)
-    except KeyboardInterrupt:
+        time.sleep(30)
+    except KeyboardInterrupt: 
         keep_alive = False
 
 mqconn.CloseQueue()
 
 mqconn.CloseConnection()
-
